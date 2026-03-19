@@ -11,11 +11,18 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : ['http://localhost:5173', 'http://localhost:3000', 'https://bozor-bozor.up.railway.app'],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve frontend static files
+const path = require('path');
+const frontendDist = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendDist));
 
 // Auth middleware
 function authenticateToken(req, res, next) {
@@ -607,6 +614,11 @@ app.delete('/api/admin/categories/:id', requireAdmin, (req, res) => {
   if (count > 0) return res.status(400).json({ error: `Cannot delete: ${count} listings use this category` });
   db.prepare('DELETE FROM categories WHERE id=?').run(req.params.id);
   res.json({ success: true });
+});
+
+// Fallback — serve frontend for all non-API routes (SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendDist, 'index.html'));
 });
 
 app.listen(PORT, () => {
