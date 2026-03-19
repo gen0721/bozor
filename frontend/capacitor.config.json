@@ -1,0 +1,12 @@
+{
+  "appId": "uz.bozor.marketplace",
+  "appName": "Bozor.uz",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}
